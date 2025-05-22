@@ -8,14 +8,33 @@ services:
       - "3000:3000"
     networks:
       - network-backend
+
   api:
     build: ./backend
     depends_on:
       - mongo
     ports:
       - "3001:3001"
-    networks: 
-     - network-backend
+    networks:
+      - network-backend
+
+  node-exporter:
+    image: prom/node-exporter
+    container_name: node-exporter
+    ports:
+      - "9101:9100"
+    networks:
+      - network-backend
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - network-backend
   
   mongo:
     image: mongo
@@ -25,14 +44,11 @@ services:
     environment: 
       MONGODB_INITDB_ROOT_USERNAME: username
       MONGODB_INITDB_ROOT_PASSWORD: password
-    # uncomment following lines to access db locally
-    # ports:
-    #   - 27017:27017
-    networks: 
-     - network-backend
+    networks:
+      - network-backend
 
 networks:
   network-backend:
 
-volumes: 
+volumes:
   mongodb_data:
